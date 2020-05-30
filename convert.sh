@@ -27,12 +27,6 @@ then
   # change conf.py for us for theme and hidden_code_block
   sed -i 's/release =/version =/g' source/conf.py
   sed -i 's/alabaster/sphinx_rtd_theme/g' source/conf.py
-  sed -i 's/# import os/import os/g' source/conf.py
-  sed -i 's/# import sys/import sys/g' source/conf.py
-  sed -i "s/# sys.path.insert(0, os.path.abspath('.'))/sys.path.insert(0, os.path.abspath('.'))/g" source/conf.py
-  echo '' >> source/conf.py
-  echo 'def setup(app):' >> source/conf.py
-  echo "  app.add_css_file('custom.css')" >> source/conf.py
   
   cp -r ./newproject/source/* ./source
   # rewrite index.rst to our optimum
@@ -68,7 +62,7 @@ else
   pandoc -f docx -t html ./$WORDDOC >build/collision-check.html
   cp /dev/null build/dynamic-tags.txt
   num=1
-  while [ $num -le 17 ]; do
+  while [ $num -le 16 ]; do
   num=$(expr $num + 1)
   while :; do
     NEWTAG='_0_'$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)'_0_'
@@ -84,7 +78,7 @@ fi
 cat build/dynamic-tags.txt
 
 echo
-echo read the dynamic tags into the 17 global variables ...
+echo read the dynamic tags into the 16 global variables ...
 
 TAGGREENS=`sed -n '1p' build/dynamic-tags.txt`
 TAGGREENE=`sed -n '2p' build/dynamic-tags.txt`
@@ -102,7 +96,6 @@ TAGWARNS=`sed -n '13p' build/dynamic-tags.txt`
 TAGWARNE=`sed -n '14p' build/dynamic-tags.txt`
 TAGNOTES=`sed -n '15p' build/dynamic-tags.txt`
 TAGNOTEE=`sed -n '16p' build/dynamic-tags.txt`
-TAGHIDDEN=`sed -n '17p' build/dynamic-tags.txt`
 
 echo
 echo create your own dynamic translation map using the variables ...
@@ -168,26 +161,48 @@ sed -i 's/<'$TAGWARNS'>/.. warning:: /g' source/readme.rst
 echo
 echo Patch the beginning of a font4-Block to make the entire section hidden ...
 
-cat <<EOF >build/replace_smallfont.py
+cat <<EOF >build/replace_smallfont_start.py
 f = open("source/readme.rst",'r', encoding="latin-1") # open file with read permissions
 filedata = f.read() # read contents
 f.close() # closes file
 EOF
 
-echo 'filedata = filedata.replace(".. code-block:: none\n\n   <'$TAGFONT4S'>", ".. container:: toggle\n\n    .. container:: header\n\n        '$TAGHIDDEN'\n\n    .. code-block:: none\n\n        <'$TAGFONT4S'>")' >>build/replace_smallfont.py
+echo 'filedata = filedata.replace(".. code-block:: none\n\n   <'$TAGFONT4S'>", ".. raw:: html\n\n   <details>\n   <summary><img src="+chr(0x22)+"UnhideButton.png"+chr(0x22)+"></summary>\n\n.. code-block:: none\n\n   ")' >>build/replace_smallfont_start.py
 
-cat <<EOF >>build/replace_smallfont.py
+cat <<EOF >>build/replace_smallfont_start.py
 f = open("build/readme.rst",'w', encoding="latin-1") # open the same (or another) file with write permissions
 f.write(filedata) # update it replacing the previous strings
 f.close() # closes the file
 EOF
 
+echo
+echo Patch the ending of a font4-Block to make the entire section hidden ...
+
+cat <<EOF >build/replace_smallfont_end.py
+f = open("source/readme.rst",'r', encoding="latin-1") # open file with read permissions
+filedata = f.read() # read contents
+f.close() # closes file
+EOF
+
+echo 'filedata = filedata.replace("<'$TAGFONT4E'>\n\n", "\n\n.. raw:: html\n\n   </details>\n\n")' >>build/replace_smallfont_end.py
+
+cat <<EOF >>build/replace_smallfont_end.py
+f = open("build/readme.rst",'w', encoding="latin-1") # open the same (or another) file with write permissions
+f.write(filedata) # update it replacing the previous strings
+f.close() # closes the file
+EOF
+
+
 echo 1/3 Processes
-python3 build/replace_smallfont.py
+python3 build/replace_smallfont_start.py
+mv build/readme.rst source/readme.rst
 
 echo 2/3 Processes
-sed -i 's/<'$TAGFONT4S'>/     /g' build/readme.rst
-echo 3/3 Processes
+python3 build/replace_smallfont_end.py
+
+echo 3/4 Processes
+sed -i 's/<'$TAGFONT4S'>//g' build/readme.rst
+echo 4/4 Processes
 sed -i 's/<'$TAGFONT4E'>//g' build/readme.rst
 
 mv build/readme.rst source/readme.rst
@@ -284,20 +299,18 @@ sed -i 's/&lt;'$TAGPURPLEE'&gt;/<\/font color="purple"><\/b>/g' build/html/readm
 
 echo
 echo just revoke the small font labels for now as the used readthedoc theme is small enough
-echo 1/7 Processes
+echo 1/6 Processes
 sed -i 's/&lt;'$TAGFONT8S'&gt;//g' build/html/readme.html
-echo 2/7 Processes
+echo 2/6 Processes
 sed -i 's/&lt;'$TAGFONT8E'&gt;//g' build/html/readme.html
-echo 3/7 Processes
+echo 3/6 Processes
 sed -i 's/&lt;'$TAGFONT6S'&gt;//g' build/html/readme.html
-echo 4/7 Processes
+echo 4/6 Processes
 sed -i 's/&lt;'$TAGFONT6E'&gt;//g' build/html/readme.html
-echo 5/7 Processes
+echo 5/6 Processes
 sed -i 's/&lt;'$TAGFONT4S'&gt;//g' build/html/readme.html
-echo 6/7 Processes
+echo 6/6 Processes
 sed -i 's/&lt;'$TAGFONT4E'&gt;//g' build/html/readme.html
-echo 7/7 Processes
-sed -i 's/'$TAGHIDDEN'/<img src="UnhideButton.png">/g' build/html/readme.html
 
 echo
 echo also remove the labels in the stored *.rst files ...
@@ -366,4 +379,4 @@ if [[ "$*" == *new* ]]
 then
   echo 'As this is a new Project we have auto-generated the reStructuredText welcome and index-Page for you.'
   echo 'If you want to edit that to expand or change what is displayed edit the File: source/index.rst'
-fi
+fi 
