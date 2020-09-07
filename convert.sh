@@ -62,7 +62,7 @@ else
   pandoc -f docx -t html ./$WORDDOC >build/collision-check.html
   cp /dev/null build/dynamic-tags.txt
   num=1
-  while [ $num -le 16 ]; do
+  while [ $num -le 18 ]; do
   num=$(expr $num + 1)
   while :; do
     NEWTAG='_0_'$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)'_0_'
@@ -78,7 +78,7 @@ fi
 cat build/dynamic-tags.txt
 
 echo
-echo read the dynamic tags into the 16 global variables ...
+echo read the dynamic tags into the 18 global variables ...
 
 TAGGREENS=`sed -n '1p' build/dynamic-tags.txt`
 TAGGREENE=`sed -n '2p' build/dynamic-tags.txt`
@@ -96,6 +96,8 @@ TAGWARNS=`sed -n '13p' build/dynamic-tags.txt`
 TAGWARNE=`sed -n '14p' build/dynamic-tags.txt`
 TAGNOTES=`sed -n '15p' build/dynamic-tags.txt`
 TAGNOTEE=`sed -n '16p' build/dynamic-tags.txt`
+TAGINLINES=`sed -n '17p' build/dynamic-tags.txt`
+TAGINLINEE=`sed -n '18p' build/dynamic-tags.txt`
 
 echo
 echo create your own dynamic translation map using the variables ...
@@ -118,6 +120,7 @@ echo "p[style-name='CLI10purple'] => pre.sourcecode:separator('\n') > "$TAGPURPL
 echo "r[style-name='CLI10green Char'] => "$TAGGREENS >> build/mymap.txt
 echo "r[style-name='CLI10red Char'] => "$TAGREDS >> build/mymap.txt
 echo "r[style-name='CLI10purple Char'] => "$TAGPURPLES >> build/mymap.txt
+echo "r[style-name='CLIinline Char'] => "$TAGINLINES >> build/mymap.txt
 cat build/mymap.txt
 
 echo
@@ -134,18 +137,21 @@ mv source/${FILENAME}.html source/index.html
 
 echo
 echo save the color termination points via relabel them else the pandoc conversion will throw them away ...
-echo 1/6 Processes
+echo 1/7 Processes
 sed -i 's/<\/'$TAGREDS'>/<'$TAGREDE'>/g' source/index.html
-echo 2/6 Processes
+echo 2/7 Processes
 sed -i 's/<\/'$TAGGREENS'>/<'$TAGGREENE'>/g' source/index.html
-echo 3/6 Processes
+echo 3/7 Processes
 sed -i 's/<\/'$TAGPURPLES'>/<'$TAGPURPLEE'>/g' source/index.html
-echo 4/6 Processes
+echo 4/7 Processes
+sed -i 's/<\/'$TAGINLINES'>/<'$TAGINLINEE'>/g' source/index.html
+echo 5/7 Processes
 sed -i 's/<\/'$TAGFONT8S'>/<'$TAGFONT8E'>/g' source/index.html
-echo 5/6 Processes
+echo 6/7 Processes
 sed -i 's/<\/'$TAGFONT6S'>/<'$TAGFONT6E'>/g' source/index.html
-echo 6/6 Processes
+echo 7/7 Processes
 sed -i 's/<\/'$TAGFONT4S'>/<'$TAGFONT4E'>/g' source/index.html
+
 
 pandoc -f html -t rst --columns=1000 source/index.html >source/readme.rst
 
@@ -284,18 +290,22 @@ cp source/UnhideButton.png build/html
 
 echo
 echo convert CLI-labels to color codes in html
-echo 1/6 Processes
+echo 1/8 Processes
 sed -i 's/&lt;'$TAGGREENS'&gt;/<font color="green"><b>/g' build/html/readme.html
-echo 2/6 Processes
+echo 2/8 Processes
 sed -i 's/&lt;'$TAGGREENE'&gt;/<\/font color="green"><\/b>/g' build/html/readme.html
-echo 3/6 Processes
+echo 3/8 Processes
 sed -i 's/&lt;'$TAGREDS'&gt;/<font color="red"><b>/g' build/html/readme.html
-echo 4/6 Processes
+echo 4/8 Processes
 sed -i 's/&lt;'$TAGREDE'&gt;/<\/font color="red"><\/b>/g' build/html/readme.html
-echo 5/6 Processes
+echo 5/8 Processes
 sed -i 's/&lt;'$TAGPURPLES'&gt;/<font color="purple"><b>/g' build/html/readme.html
-echo 6/6 Processes
+echo 6/8 Processes
 sed -i 's/&lt;'$TAGPURPLEE'&gt;/<\/font color="purple"><\/b>/g' build/html/readme.html
+echo 7/8 Processes
+sed -i 's/&lt;'$TAGINLINES'&gt;/<font color="black" face="Courier New"><b><span style="background-color:lightgray;">/g' build/html/readme.html
+echo 8/8 Processes
+sed -i 's/&lt;'$TAGINLINEE'&gt;/<\/span><\/b><\/font>/g' build/html/readme.html
 
 echo
 echo just revoke the small font labels for now as the used readthedoc theme is small enough
@@ -314,30 +324,34 @@ sed -i 's/&lt;'$TAGFONT4E'&gt;//g' build/html/readme.html
 
 echo
 echo also remove the labels in the stored *.rst files ...
-echo 1/12 Processes
+echo 1/14 Processes
 sed -i 's/<'$TAGGREENS'>//g' build/html/_sources/readme.rst.txt
-echo 2/12 Processes
+echo 2/14 Processes
 sed -i 's/<'$TAGGREENE'>//g' build/html/_sources/readme.rst.txt
-echo 3/12 Processes
+echo 3/14 Processes
 sed -i 's/<'$TAGREDS'>//g' build/html/_sources/readme.rst.txt
-echo 4/12 Processes
+echo 4/14 Processes
 sed -i 's/<'$TAGREDE'>//g' build/html/_sources/readme.rst.txt
-echo 5/12 Processes
+echo 5/14 Processes
 sed -i 's/<'$TAGPURPLES'>//g' build/html/_sources/readme.rst.txt
-echo 6/12 Processes
+echo 6/14 Processes
 sed -i 's/<'$TAGPURPLEE'>//g' build/html/_sources/readme.rst.txt
-echo 7/12 Processes
+echo 7/14 Processes
 sed -i 's/<'$TAGFONT8S'>//g' build/html/_sources/readme.rst.txt
-echo 8/12 Processes
+echo 8/14 Processes
 sed -i 's/<'$TAGFONT8E'>//g' build/html/_sources/readme.rst.txt
-echo 9/12 Processes
+echo 9/14 Processes
 sed -i 's/<'$TAGFONT6S'>//g' build/html/_sources/readme.rst.txt
-echo 10/12 Processes
+echo 10/14 Processes
 sed -i 's/<'$TAGFONT6E'>//g' build/html/_sources/readme.rst.txt
-echo 11/12 Processes
+echo 11/14 Processes
 sed -i 's/<'$TAGFONT4S'>//g' build/html/_sources/readme.rst.txt
-echo 11/12 Processes
+echo 12/14 Processes
 sed -i 's/<'$TAGFONT4E'>//g' build/html/_sources/readme.rst.txt
+echo 13/14 Processes
+sed -i 's/<'$TAGINLINES'>//g' build/html/_sources/readme.rst.txt
+echo 14/14 Processes
+sed -i 's/<'$TAGINLINEE'>//g' build/html/_sources/readme.rst.txt
 
 echo
 echo prepare distribution package with word and html-files in a *.zip ...
