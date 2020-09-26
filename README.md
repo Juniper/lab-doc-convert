@@ -1,6 +1,8 @@
 
 # Lab documentation essentials including Word to HTML conversion
 
+# [Tutorial Video on YouTube](https://www.youtube.com/watch?v=6-RIzlekp9c)
+
 ## Note: Some of the original information is missing here on purpose to keep this README.md crisp! Please use the supplied File Lab-doc-essentials.docx for more detailed information.
 
 # 1	WHY this Framework?
