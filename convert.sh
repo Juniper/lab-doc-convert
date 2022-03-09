@@ -270,9 +270,9 @@ do
   myapp=`eval $app`
   echo "App to use:"$myapp
   myfile=`echo $line|awk '{print $1}'`
-  loc=`cat source/readme.rst | grep -in ${myfile} | head -n 1 | sed 's/|/ /g' | awk '{ print $2 }'`
+  loc=`cat source/readme.rst | grep -in ${myfile} | head -n 1 | sed 's/|/ /g' | awk '{ print $3 }'`
   echo "Attach after which image:"$loc
-  runme="cat source/readme.rst | grep -in '|"$loc"|' | head -n 1 | sed 's/:/ /g' | awk '{ print \$1 }'"
+  runme="cat source/readme.rst | grep -in '^.. image:: "$loc"' | head -n 1 | sed 's/:/ /g' | awk '{ print \$1 }'"
   echo $runme
   toline=`eval $runme`
   echo "Image line in rst is:"$toline
