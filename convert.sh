@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# Name: juniper-lab-doc-convert v1.5
+# Name: juniper-lab-doc-convert v1.7
 #
-# Juniper Copyright: Copyright (c) [2018-2020], Juniper Networks, Inc. All rights reserved.
+# Juniper Copyright: Copyright (c) [2018-2022], Juniper Networks, Inc. All rights reserved.
 #
 # Notice and Disclaimer: This code is licensed to you under the Creative Commons Attribution Share Alike 3.0 (the "License").
 # You may not use this code except in compliance with the License. This code is not an official Juniper product.
@@ -96,8 +96,8 @@ TAGWARNS=`sed -n '13p' build/dynamic-tags.txt`
 TAGWARNE=`sed -n '14p' build/dynamic-tags.txt`
 TAGNOTES=`sed -n '15p' build/dynamic-tags.txt`
 TAGNOTEE=`sed -n '16p' build/dynamic-tags.txt`
-TAGINLINES=`sed -n '17p' build/dynamic-tags.txt`
-TAGINLINEE=`sed -n '18p' build/dynamic-tags.txt`
+TAGFONT10S=`sed -n '17p' build/dynamic-tags.txt`
+TAGFONT10E=`sed -n '18p' build/dynamic-tags.txt`
 
 echo
 echo create your own dynamic translation map using the variables ...
@@ -106,9 +106,9 @@ cat <<EOF >build/mymap.txt
 p[style-name='header'] => p:fresh
 p[style-name='Body Text'] => p:fresh
 p[style-name='No Spacing'] => pre.sourcecode:separator('\n')
-p[style-name='CLI10'] => pre.sourcecode:separator('\n')
 EOF
 
+echo "p[style-name='CLI10'] => pre.sourcecode:separator('\n') > "$TAGFONT10S >> build/mymap.txt
 echo "p[style-name='CLI8'] => pre.sourcecode:separator('\n') > "$TAGFONT8S >> build/mymap.txt
 echo "p[style-name='CLI6'] => pre.sourcecode:separator('\n') > "$TAGFONT6S >> build/mymap.txt
 echo "p[style-name='CLI4'] => pre.sourcecode:separator('\n') > "$TAGFONT4S >> build/mymap.txt
@@ -120,7 +120,6 @@ echo "p[style-name='CLI10purple'] => pre.sourcecode:separator('\n') > "$TAGPURPL
 echo "r[style-name='CLI10green Char'] => "$TAGGREENS >> build/mymap.txt
 echo "r[style-name='CLI10red Char'] => "$TAGREDS >> build/mymap.txt
 echo "r[style-name='CLI10purple Char'] => "$TAGPURPLES >> build/mymap.txt
-echo "r[style-name='CLIinline Char'] => "$TAGINLINES >> build/mymap.txt
 cat build/mymap.txt
 
 echo
@@ -144,14 +143,13 @@ sed -i 's/<\/'$TAGGREENS'>/<'$TAGGREENE'>/g' source/index.html
 echo 3/7 Processes
 sed -i 's/<\/'$TAGPURPLES'>/<'$TAGPURPLEE'>/g' source/index.html
 echo 4/7 Processes
-sed -i 's/<\/'$TAGINLINES'>/<'$TAGINLINEE'>/g' source/index.html
-echo 5/7 Processes
 sed -i 's/<\/'$TAGFONT8S'>/<'$TAGFONT8E'>/g' source/index.html
-echo 6/7 Processes
+echo 5/7 Processes
 sed -i 's/<\/'$TAGFONT6S'>/<'$TAGFONT6E'>/g' source/index.html
-echo 7/7 Processes
+echo 6/7 Processes
 sed -i 's/<\/'$TAGFONT4S'>/<'$TAGFONT4E'>/g' source/index.html
-
+echo 7/7 Processes
+sed -i 's/<\/'$TAGFONT10S'>/<'$TAGFONT10E'>/g' source/index.html
 
 pandoc -f html -t rst --columns=1000 source/index.html >source/readme.rst
 
@@ -282,30 +280,32 @@ do
   echo "done"
 done < <(cat build/filelist.txt)
 
+
 echo
 echo building our static html pages ...
 make html
 
 cp source/UnhideButton.png build/html
 
+
 echo
 echo convert CLI-labels to color codes in html
-echo 1/8 Processes
-sed -i 's/&lt;'$TAGGREENS'&gt;/<font color="green"><b>/g' build/html/readme.html
-echo 2/8 Processes
-sed -i 's/&lt;'$TAGGREENE'&gt;/<\/font color="green"><\/b>/g' build/html/readme.html
-echo 3/8 Processes
-sed -i 's/&lt;'$TAGREDS'&gt;/<font color="red"><b>/g' build/html/readme.html
-echo 4/8 Processes
-sed -i 's/&lt;'$TAGREDE'&gt;/<\/font color="red"><\/b>/g' build/html/readme.html
-echo 5/8 Processes
-sed -i 's/&lt;'$TAGPURPLES'&gt;/<font color="purple"><b>/g' build/html/readme.html
-echo 6/8 Processes
-sed -i 's/&lt;'$TAGPURPLEE'&gt;/<\/font color="purple"><\/b>/g' build/html/readme.html
+echo 1/6 Processes
+sed -i 's/&lt;'$TAGGREENS'&gt;/<span style="color:green"><b>/g' build/html/readme.html
+echo 2/6 Processes
+sed -i 's/&lt;'$TAGGREENE'&gt;/<\/b><\/span style="color:green">/g' build/html/readme.html
+echo 3/6 Processes
+sed -i 's/&lt;'$TAGREDS'&gt;/<span style="color:red;"><b>/g' build/html/readme.html
+echo 4/6 Processes
+sed -i 's/&lt;'$TAGREDE'&gt;/<\/b><\/span style="color:red;">/g' build/html/readme.html
+echo 5/6 Processes
+sed -i 's/&lt;'$TAGPURPLES'&gt;/<span style="color:purple; background-color:khaki;"><b>/g' build/html/readme.html
+echo 6/6 Processes
+sed -i 's/&lt;'$TAGPURPLEE'&gt;/<\/b><\/span style="color:purple; background-color:khaki;">/g' build/html/readme.html
 echo 7/8 Processes
-sed -i 's/&lt;'$TAGINLINES'&gt;/<font color="black" face="Courier New"><b><span style="background-color:lightgray;">/g' build/html/readme.html
+sed -i 's/&lt;'$TAGFONT10S'&gt;/<span>/g' build/html/readme.html
 echo 8/8 Processes
-sed -i 's/&lt;'$TAGINLINEE'&gt;/<\/span><\/b><\/font>/g' build/html/readme.html
+sed -i 's/&lt;'$TAGFONT10E'&gt;/<\/span>/g' build/html/readme.html
 
 echo
 echo just revoke the small font labels for now as the used readthedoc theme is small enough
@@ -321,6 +321,55 @@ echo 5/6 Processes
 sed -i 's/&lt;'$TAGFONT4S'&gt;//g' build/html/readme.html
 echo 6/6 Processes
 sed -i 's/&lt;'$TAGFONT4E'&gt;//g' build/html/readme.html
+
+echo
+echo convert rst file into markdown advanced
+pandoc -f rst -t gfm build/html/_sources/readme.rst.txt >build/html/readme-advanced.md
+
+echo
+echo convert CLI-labels to color codes in rst
+echo 1/8 Processes
+sed -i 's/<'$TAGGREENS'>/<span style="color:green"><b>/g' build/html/readme-advanced.md
+echo 2/8 Processes
+sed -i 's/<'$TAGGREENE'>/<\/b><\/span style="color:green">/g' build/html/readme-advanced.md
+echo 3/8 Processes
+sed -i 's/<'$TAGREDS'>/<span style="color:red;"><b>/g' build/html/readme-advanced.md
+echo 4/8 Processes
+sed -i 's/<'$TAGREDE'>/<\/b><\/span style="color:red;">/g' build/html/readme-advanced.md
+echo 5/8 Processes
+sed -i 's/<'$TAGPURPLES'>/<span style="color:purple; background-color:khaki;"><b>/g' build/html/readme-advanced.md
+echo 6/8 Processes
+sed -i 's/<'$TAGPURPLEE'>/<\/b><\/span style="color:purple; background-color:khaki;">/g' build/html/readme-advanced.md
+echo 7/8 Processes
+sed -i 's/<'$TAGFONT10S'>/<span>/g' build/html/readme-advanced.md
+echo 8/8 Processes
+sed -i 's/<'$TAGFONT10E'>/<\/span>/g' build/html/readme-advanced.md
+
+echo
+echo instead of code-statement use html-box
+sed -i 's/^``` none/<div class="mybox" style="border: 1px solid #e1e4e5 ; overflow-x: auto; margin: 0px 0 16px; box-sizing: border-box; padding: 5px; background: #F7F7F7;"><div class="mycode" style="font-weight: 400; box-sizing: border-box; font-family: SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,Courier,monospace; font-size: 12px; line-height: 1.2; white-space: pre;"><span>/g' build/html/readme-advanced.md
+sed -i 's/^```/<font color="black"><\/span><\/div><\/div>\n/g' build/html/readme-advanced.md
+sed -i 's/<div class="note">/<div class="highlight" style="color:white;background-color:SteelBlue">/g' build/html/readme-advanced.md
+sed -i 's/<div class="warning">/<div class="highlight" style="color:white;background-color:IndianRed">/g' build/html/readme-advanced.md
+
+echo
+echo just revoke the small font labels for now as the used readthedoc theme is small enough
+echo 1/6 Processes
+sed -i 's/<'$TAGFONT8S'>/<span>/g' build/html/readme-advanced.md
+echo 2/6 Processes
+sed -i 's/<'$TAGFONT8E'>/<\/span>/g' build/html/readme-advanced.md
+echo 3/6 Processes
+sed -i 's/<'$TAGFONT6S'>/<span>/g' build/html/readme-advanced.md
+echo 4/6 Processes
+sed -i 's/<'$TAGFONT6E'>/<\/span>/g' build/html/readme-advanced.md
+echo 5/6 Processes
+sed -i 's/<'$TAGFONT4S'>//g' build/html/readme-advanced.md
+echo 6/6 Processes
+sed -i 's/<'$TAGFONT4E'>//g' build/html/readme-advanced.md
+
+#echo
+#echo convert markdown to html for render testing
+#pandoc -f gfm -t html build/html/readme-advanced.md >build/html/readme-advanced.html
 
 echo
 echo also remove the labels in the stored *.rst files ...
@@ -349,21 +398,77 @@ sed -i 's/<'$TAGFONT4S'>//g' build/html/_sources/readme.rst.txt
 echo 12/14 Processes
 sed -i 's/<'$TAGFONT4E'>//g' build/html/_sources/readme.rst.txt
 echo 13/14 Processes
-sed -i 's/<'$TAGINLINES'>//g' build/html/_sources/readme.rst.txt
+sed -i 's/<'$TAGFONT10S'>//g' build/html/_sources/readme.rst.txt
 echo 14/14 Processes
-sed -i 's/<'$TAGINLINEE'>//g' build/html/_sources/readme.rst.txt
+sed -i 's/<'$TAGFONT10E'>//g' build/html/_sources/readme.rst.txt
+
 
 echo
-echo prepare distribution package with word and html-files in a *.zip ...
-mkdir -p build/distribute/readthedocs-html-version
+echo convert rst file into markdown plain
+pandoc -f rst -t gfm build/html/_sources/readme.rst.txt >build/html/readme-plain.md
+
+echo
+echo convert hidden/details codeblocks from readme-plain.md back to regular code
+echo 1/3 Processes
+sed -i 's/^<details>//g' build/html/readme-plain.md
+echo 2/3 Processes
+sed -i 's/^<\/details>//g' build/html/readme-plain.md
+echo 3/3 Processes
+sed -i 's/^<summary><img src="UnhideButton.png"><\/summary>//g' build/html/readme-plain.md
+
+echo
+echo notes and warning html from readme-plain.md to make it visible again as they are not known classes
+echo 1/4 Processes
+sed -i 's/^<\/div>//g' build/html/readme-plain.md
+echo 2/4 Processes
+sed -i 's/^<div class="note">//g' build/html/readme-plain.md
+echo 3/4 Processes
+sed -i 's/^<div class="warning">//g' build/html/readme-plain.md
+echo 3/4 Processes
+sed -i 's/^<div class="title">//g' build/html/readme-plain.md
+
+if [[ "$*" == *md5* ]]
+then
+  echo
+  echo get md5sums from all images MAY TAKE SOME TIME
+  cp build/html/readme-plain.md build/html/readme-txt-only.md
+  md5sum build/html/_images/* > build/image-md5sums.txt
+
+  echo replace picture references with md5sums
+  while IFS= read -r line
+  do
+    mymd5=`echo $line|awk '{print $1}'`
+    myimage=`echo $line|awk '{print $2}'|sed 's/build\/html\/_images\///g'`
+    runme="sed -i 's/^!\[image\]("$myimage")/Image-with-MD5sum:"$mymd5"/g' build/html/readme-txt-only.md"
+    eval $runme
+    echo $runme
+  done < <(cat build/image-md5sums.txt)
+fi
+
+echo
+echo prepare distribution package with word, html and markdown-files in a *.zip ...
+mkdir -p build/distribute/html-version
+mkdir -p build/distribute/markdown-version
 cp $WORDDOC build/distribute
-cp -R build/html/* build/distribute/readthedocs-html-version
-cp source/UnhideButton.png build/distribute/readthedocs-html-version
+cp -R build/html/* build/distribute/html-version
+cp source/UnhideButton.png build/distribute/html-version
+cp source/UnhideButton.png build/distribute/markdown-version
+cp build/distribute/html-version/_images/* build/distribute/markdown-version
+mv build/distribute/html-version/readme-advanced.md build/distribute/markdown-version
+mv build/distribute/html-version/readme-plain.md build/distribute/markdown-version
+if [[ "$*" == *md5* ]]
+then
+  mv build/distribute/html-version/readme-txt-only.md build/distribute/markdown-version
+  cp build/image-md5sums.txt build/distribute/markdown-version
+fi 
 
 while IFS= read -r line
 do
   echo "File detected:"$line
-  runme="cp source/"$line" build/distribute/readthedocs-html-version"
+  runme="cp source/"$line" build/distribute/html-version"
+  eval $runme
+  echo $runme
+  runme="cp source/"$line" build/distribute/markdown-version"
   eval $runme
   echo $runme
 done < <(cat build/apporder.txt)
@@ -377,7 +482,7 @@ ls build/html/
 
 echo
 echo -n "Your distribution zip file:"
-ls $FILENAME.zip
+ls -l $FILENAME.zip
 
 echo
 if [[ $NUM -gt 1 ]]; then
@@ -393,4 +498,4 @@ if [[ "$*" == *new* ]]
 then
   echo 'As this is a new Project we have auto-generated the reStructuredText welcome and index-Page for you.'
   echo 'If you want to edit that to expand or change what is displayed edit the File: source/index.rst'
-fi 
+fi
