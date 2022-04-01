@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Name: juniper-lab-doc-convert v1.7
+# Name: juniper-lab-doc-convert v1.7 Fix1
 #
 # Juniper Copyright: Copyright (c) [2018-2022], Juniper Networks, Inc. All rights reserved.
 #
@@ -62,7 +62,7 @@ else
   pandoc -f docx -t html ./$WORDDOC >build/collision-check.html
   cp /dev/null build/dynamic-tags.txt
   num=1
-  while [ $num -le 18 ]; do
+  while [ $num -le 20 ]; do
   num=$(expr $num + 1)
   while :; do
     NEWTAG='_0_'$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)'_0_'
@@ -78,7 +78,7 @@ fi
 cat build/dynamic-tags.txt
 
 echo
-echo read the dynamic tags into the 18 global variables ...
+echo read the dynamic tags into the 20 global variables ...
 
 TAGGREENS=`sed -n '1p' build/dynamic-tags.txt`
 TAGGREENE=`sed -n '2p' build/dynamic-tags.txt`
@@ -96,8 +96,10 @@ TAGWARNS=`sed -n '13p' build/dynamic-tags.txt`
 TAGWARNE=`sed -n '14p' build/dynamic-tags.txt`
 TAGNOTES=`sed -n '15p' build/dynamic-tags.txt`
 TAGNOTEE=`sed -n '16p' build/dynamic-tags.txt`
-TAGFONT10S=`sed -n '17p' build/dynamic-tags.txt`
-TAGFONT10E=`sed -n '18p' build/dynamic-tags.txt`
+TAGINLINES=`sed -n '17p' build/dynamic-tags.txt`
+TAGINLINEE=`sed -n '18p' build/dynamic-tags.txt`
+TAGFONT10S=`sed -n '19p' build/dynamic-tags.txt`
+TAGFONT10E=`sed -n '20p' build/dynamic-tags.txt`
 
 echo
 echo create your own dynamic translation map using the variables ...
@@ -120,6 +122,7 @@ echo "p[style-name='CLI10purple'] => pre.sourcecode:separator('\n') > "$TAGPURPL
 echo "r[style-name='CLI10green Char'] => "$TAGGREENS >> build/mymap.txt
 echo "r[style-name='CLI10red Char'] => "$TAGREDS >> build/mymap.txt
 echo "r[style-name='CLI10purple Char'] => "$TAGPURPLES >> build/mymap.txt
+echo "r[style-name='CLIinline Char'] => "$TAGINLINES >> build/mymap.txt
 cat build/mymap.txt
 
 echo
@@ -136,19 +139,21 @@ mv source/${FILENAME}.html source/index.html
 
 echo
 echo save the color termination points via relabel them else the pandoc conversion will throw them away ...
-echo 1/7 Processes
+echo 1/8 Processes
 sed -i 's/<\/'$TAGREDS'>/<'$TAGREDE'>/g' source/index.html
-echo 2/7 Processes
+echo 2/8 Processes
 sed -i 's/<\/'$TAGGREENS'>/<'$TAGGREENE'>/g' source/index.html
-echo 3/7 Processes
+echo 3/8 Processes
 sed -i 's/<\/'$TAGPURPLES'>/<'$TAGPURPLEE'>/g' source/index.html
-echo 4/7 Processes
+echo 4/8 Processes
+sed -i 's/<\/'$TAGINLINES'>/<'$TAGINLINEE'>/g' source/index.html
+echo 5/8 Processes
 sed -i 's/<\/'$TAGFONT8S'>/<'$TAGFONT8E'>/g' source/index.html
-echo 5/7 Processes
+echo 6/8 Processes
 sed -i 's/<\/'$TAGFONT6S'>/<'$TAGFONT6E'>/g' source/index.html
-echo 6/7 Processes
+echo 7/8 Processes
 sed -i 's/<\/'$TAGFONT4S'>/<'$TAGFONT4E'>/g' source/index.html
-echo 7/7 Processes
+echo 8/8 Processes
 sed -i 's/<\/'$TAGFONT10S'>/<'$TAGFONT10E'>/g' source/index.html
 
 pandoc -f html -t rst --columns=1000 source/index.html >source/readme.rst
@@ -290,21 +295,25 @@ cp source/UnhideButton.png build/html
 
 echo
 echo convert CLI-labels to color codes in html
-echo 1/6 Processes
+echo 1/10 Processes
 sed -i 's/&lt;'$TAGGREENS'&gt;/<span style="color:green"><b>/g' build/html/readme.html
-echo 2/6 Processes
+echo 2/10 Processes
 sed -i 's/&lt;'$TAGGREENE'&gt;/<\/b><\/span style="color:green">/g' build/html/readme.html
-echo 3/6 Processes
+echo 3/10 Processes
 sed -i 's/&lt;'$TAGREDS'&gt;/<span style="color:red;"><b>/g' build/html/readme.html
-echo 4/6 Processes
+echo 4/10 Processes
 sed -i 's/&lt;'$TAGREDE'&gt;/<\/b><\/span style="color:red;">/g' build/html/readme.html
-echo 5/6 Processes
+echo 5/10 Processes
 sed -i 's/&lt;'$TAGPURPLES'&gt;/<span style="color:purple; background-color:khaki;"><b>/g' build/html/readme.html
-echo 6/6 Processes
+echo 6/10 Processes
 sed -i 's/&lt;'$TAGPURPLEE'&gt;/<\/b><\/span style="color:purple; background-color:khaki;">/g' build/html/readme.html
-echo 7/8 Processes
+echo 7/10 Processes
+sed -i 's/&lt;'$TAGINLINES'&gt;/<span style="color:black; background-color:lightgray;"><b>/g' build/html/readme.html
+echo 8/10 Processes
+sed -i 's/&lt;'$TAGINLINEE'&gt;/<\/b><\/span style="color:black; background-color:lightgray;">/g' build/html/readme.html
+echo 9/10 Processes
 sed -i 's/&lt;'$TAGFONT10S'&gt;/<span>/g' build/html/readme.html
-echo 8/8 Processes
+echo 10/10 Processes
 sed -i 's/&lt;'$TAGFONT10E'&gt;/<\/span>/g' build/html/readme.html
 
 echo
@@ -322,12 +331,19 @@ sed -i 's/&lt;'$TAGFONT4S'&gt;//g' build/html/readme.html
 echo 6/6 Processes
 sed -i 's/&lt;'$TAGFONT4E'&gt;//g' build/html/readme.html
 
-echo
-echo convert rst file into markdown advanced
-pandoc -f rst -t gfm build/html/_sources/readme.rst.txt >build/html/readme-advanced.md
+cp build/html/_sources/readme.rst.txt build/readme.rst.tmp
+echo special inline html handle
+echo 1/2 Processes
+sed -i 's/<'$TAGINLINES'>/``/g' build/readme.rst.tmp
+echo 2/2 Processes
+sed -i 's/<'$TAGINLINEE'>/``/g' build/readme.rst.tmp
 
 echo
-echo convert CLI-labels to color codes in rst
+echo convert rst file into markdown advanced
+pandoc -f rst -t gfm build/readme.rst.tmp >build/html/readme-advanced.md
+
+echo
+echo convert CLI-labels to color codes in advanced markdown
 echo 1/8 Processes
 sed -i 's/<'$TAGGREENS'>/<span style="color:green"><b>/g' build/html/readme-advanced.md
 echo 2/8 Processes
@@ -344,6 +360,7 @@ echo 7/8 Processes
 sed -i 's/<'$TAGFONT10S'>/<span>/g' build/html/readme-advanced.md
 echo 8/8 Processes
 sed -i 's/<'$TAGFONT10E'>/<\/span>/g' build/html/readme-advanced.md
+
 
 echo
 echo instead of code-statement use html-box
@@ -373,39 +390,50 @@ sed -i 's/<'$TAGFONT4E'>//g' build/html/readme-advanced.md
 
 echo
 echo also remove the labels in the stored *.rst files ...
-echo 1/14 Processes
+echo 1/18 Processes
 sed -i 's/<'$TAGGREENS'>//g' build/html/_sources/readme.rst.txt
-echo 2/14 Processes
+echo 2/18 Processes
 sed -i 's/<'$TAGGREENE'>//g' build/html/_sources/readme.rst.txt
-echo 3/14 Processes
+echo 3/18 Processes
 sed -i 's/<'$TAGREDS'>//g' build/html/_sources/readme.rst.txt
-echo 4/14 Processes
+echo 4/18 Processes
 sed -i 's/<'$TAGREDE'>//g' build/html/_sources/readme.rst.txt
-echo 5/14 Processes
+echo 5/18 Processes
 sed -i 's/<'$TAGPURPLES'>//g' build/html/_sources/readme.rst.txt
-echo 6/14 Processes
+echo 6/18 Processes
 sed -i 's/<'$TAGPURPLEE'>//g' build/html/_sources/readme.rst.txt
-echo 7/14 Processes
+echo 7/18 Processes
 sed -i 's/<'$TAGFONT8S'>//g' build/html/_sources/readme.rst.txt
-echo 8/14 Processes
+echo 8/18 Processes
 sed -i 's/<'$TAGFONT8E'>//g' build/html/_sources/readme.rst.txt
-echo 9/14 Processes
+echo 9/18 Processes
 sed -i 's/<'$TAGFONT6S'>//g' build/html/_sources/readme.rst.txt
-echo 10/14 Processes
+echo 10/18 Processes
 sed -i 's/<'$TAGFONT6E'>//g' build/html/_sources/readme.rst.txt
-echo 11/14 Processes
+echo 11/18 Processes
 sed -i 's/<'$TAGFONT4S'>//g' build/html/_sources/readme.rst.txt
-echo 12/14 Processes
+echo 12/18 Processes
 sed -i 's/<'$TAGFONT4E'>//g' build/html/_sources/readme.rst.txt
-echo 13/14 Processes
+echo 13/18 Processes
 sed -i 's/<'$TAGFONT10S'>//g' build/html/_sources/readme.rst.txt
-echo 14/14 Processes
+echo 14/18 Processes
 sed -i 's/<'$TAGFONT10E'>//g' build/html/_sources/readme.rst.txt
+# make copy for special inline handleing in markdown
+cp build/html/_sources/readme.rst.txt build/readme.rst.tmp
+echo 15/18 Processes
+sed -i 's/<'$TAGINLINES'>//g' build/html/_sources/readme.rst.txt
+echo 16/18 Processes
+sed -i 's/<'$TAGINLINEE'>//g' build/html/_sources/readme.rst.txt
+# now apply inline before conversion similar to advanced md
+echo 17/18 Processes
+sed -i 's/<'$TAGINLINES'>/``/g' build/readme.rst.tmp
+echo 18/18 Processes
+sed -i 's/<'$TAGINLINEE'>/``/g' build/readme.rst.tmp
 
 
 echo
 echo convert rst file into markdown plain
-pandoc -f rst -t gfm build/html/_sources/readme.rst.txt >build/html/readme-plain.md
+pandoc -f rst -t gfm build/readme.rst.tmp >build/html/readme-plain.md
 
 echo
 echo convert hidden/details codeblocks from readme-plain.md back to regular code
@@ -453,7 +481,12 @@ cp $WORDDOC build/distribute
 cp -R build/html/* build/distribute/html-version
 cp source/UnhideButton.png build/distribute/html-version
 cp source/UnhideButton.png build/distribute/markdown-version
-cp build/distribute/html-version/_images/* build/distribute/markdown-version
+#cp build/distribute/html-version/_images/* build/distribute/markdown-version
+echo 'cp ../html-version/_images/* .' > build/distribute/markdown-version/copy-images-to-this-dir.sh
+echo '' >> build/distribute/markdown-version/copy-images-to-this-dir.sh
+chmod 777 build/distribute/markdown-version/copy-images-to-this-dir.sh
+echo 'copy ..\html-version\_images\* .' > build/distribute/markdown-version/copy-images-to-this-dir.bat
+echo '' >> build/distribute/markdown-version/copy-images-to-this-dir.bat
 mv build/distribute/html-version/readme-advanced.md build/distribute/markdown-version
 mv build/distribute/html-version/readme-plain.md build/distribute/markdown-version
 if [[ "$*" == *md5* ]]
@@ -481,7 +514,7 @@ echo "static html pages in build/html:"
 ls build/html/
 
 echo
-echo -n "Your distribution zip file:"
+echo "Your distribution zip file:"
 ls -l $FILENAME.zip
 
 echo
