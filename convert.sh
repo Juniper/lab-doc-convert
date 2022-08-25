@@ -193,7 +193,7 @@ filedata = f.read() # read contents
 f.close() # closes file
 EOF
 
-echo 'filedata = filedata.replace("<'$TAGFONT4E'>\n\n", "\n\n.. raw:: html\n\n   </details>\n\n")' >>build/replace_smallfont_end.py
+echo 'filedata = filedata.replace("<'$TAGFONT4E'>\n\n", "\n\n.. raw:: html\n\n   </details><br><br>\n\n")' >>build/replace_smallfont_end.py
 
 cat <<EOF >>build/replace_smallfont_end.py
 f = open("build/readme.rst",'w', encoding="latin-1") # open the same (or another) file with write permissions
