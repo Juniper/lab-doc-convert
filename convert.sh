@@ -27,6 +27,8 @@ then
   # change conf.py for us for theme and hidden_code_block
   sed -i 's/release =/version =/g' source/conf.py
   sed -i 's/alabaster/sphinx_rtd_theme/g' source/conf.py
+  echo "html_theme_options = { 'version_selector': True }" >>source/conf.py
+  echo 'html_context = {"current_version": str(version),"versions":[["This version","."]]}'  >>source/conf.py
   
   cp -r ./newproject/source/* ./source
   # rewrite index.rst to our optimum
@@ -65,7 +67,7 @@ else
   while [ $num -le 20 ]; do
   num=$(expr $num + 1)
   while :; do
-    NEWTAG='_0_'$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)'_0_'
+    NEWTAG='_0'$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)'0'
     COLLISION=$(cat build/collision-check.html | grep $NEWTAG | wc -l)
     if [ $COLLISION -eq 0 ]; then
       break
@@ -137,6 +139,7 @@ echo running mammoth ...
 mammoth --output-format html --style-map build/mymap.txt --output-dir source ./$WORDDOC
 mv source/${FILENAME}.html source/index.html
 
+
 echo
 echo save the color termination points via relabel them else the pandoc conversion will throw them away ...
 echo 1/8 Processes
@@ -156,7 +159,21 @@ sed -i 's/<\/'$TAGFONT4S'>/<'$TAGFONT4E'>/g' source/index.html
 echo 8/8 Processes
 sed -i 's/<\/'$TAGFONT10S'>/<'$TAGFONT10E'>/g' source/index.html
 
+echo
+echo pandoc html to rst conversion
 pandoc -f html -t rst --columns=1000 source/index.html >source/readme.rst
+
+echo
+echo correct tag first character \ appearance
+echo 1/4 Processes
+sed -i 's/<\\'$TAGNOTES'>/<'$TAGNOTES'>/g' source/readme.rst
+echo 2/4 Processes
+sed -i 's/<\\'$TAGWARNS'>/<'$TAGWARNS'>/g' source/readme.rst
+echo 3/4 Processes
+sed -i 's/<\\'$TAGINLINES'>/<'$TAGINLINES'>/g' source/readme.rst
+echo 4/4 Processes
+sed -i 's/<\\'$TAGINLINEE'>/<'$TAGINLINEE'>/g' source/readme.rst
+
 
 echo
 echo Pre-Process to disable syntax highlight, insert notes and warnings
@@ -202,11 +219,11 @@ f.close() # closes the file
 EOF
 
 
-echo 1/3 Processes
+echo 1/4 Processes
 python3 build/replace_smallfont_start.py
 mv build/readme.rst source/readme.rst
 
-echo 2/3 Processes
+echo 2/4 Processes
 python3 build/replace_smallfont_end.py
 
 echo 3/4 Processes
@@ -273,9 +290,10 @@ do
   myapp=`eval $app`
   echo "App to use:"$myapp
   myfile=`echo $line|awk '{print $1}'`
-  loc=`cat source/readme.rst | grep -in ${myfile} | head -n 1 | sed 's/|/ /g' | awk '{ print $3 }'`
+  echo "Myfile:"$myfile
+  loc=`cat source/readme.rst | grep -in ${myfile} | head -n 1 | sed 's/|/ /g' | awk '{ print $2 }'`
   echo "Attach after which image:"$loc
-  runme="cat source/readme.rst | grep -in '^.. image:: "$loc"' | head -n 1 | sed 's/:/ /g' | awk '{ print \$1 }'"
+  runme="cat source/readme.rst | grep -in '^|"$loc"|' | head -n 1 | sed 's/:/ /g' | awk '{ print \$1 }'"
   echo $runme
   toline=`eval $runme`
   echo "Image line in rst is:"$toline
@@ -434,6 +452,10 @@ sed -i 's/<'$TAGINLINEE'>/``/g' build/readme.rst.tmp
 echo
 echo convert rst file into markdown plain
 pandoc -f rst -t gfm build/readme.rst.tmp >build/html/readme-plain.md
+
+#echo
+#echo convert markdown-plain to html for render testing
+#pandoc -f rst -t html build/readme.rst.tmp >build/html/readme-plain.html
 
 echo
 echo convert hidden/details codeblocks from readme-plain.md back to regular code
