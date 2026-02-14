@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# Name: juniper-lab-doc-convert v1.7 Fix1
+# Name: juniper-lab-doc-convert v1.8.1
 #
-# Juniper Copyright: Copyright (c) [2018-2022], Juniper Networks, Inc. All rights reserved.
+# Juniper Copyright: Copyright (c) [2018-2026], Juniper Networks, Inc. All rights reserved.
 #
 # Notice and Disclaimer: This code is licensed to you under the Creative Commons Attribution Share Alike 3.0 (the "License").
 # You may not use this code except in compliance with the License. This code is not an official Juniper product.
@@ -21,10 +21,16 @@ if [[ "$*" == *new* ]]
 then
   rm -Rf build/*
   rm -Rf source/*
-  rm -Rf Makefile*
+  rm -Rf conf.py
+  rm -Rf index.rst
+  rm -Rf make.bat
+  rm -Rf Makefile
   echo 'Please answer the first question about "Separate source and build directories" with YES'
   sphinx-quickstart
-  # change conf.py for us for theme and hidden_code_block
+  sed -i '/Add your content using/d' source/index.rst
+  sed -i '/reStructuredText/d' source/index.rst
+  sed -i '/documentation for details/d' source/index.rst
+  # change conf.py for us for sphinx_rtd_theme and version display
   sed -i 's/release =/version =/g' source/conf.py
   sed -i 's/alabaster/sphinx_rtd_theme/g' source/conf.py
   echo "html_theme_options = { 'version_selector': True }" >>source/conf.py
@@ -231,6 +237,17 @@ sed -i 's/<'$TAGFONT4S'>//g' build/readme.rst
 echo 4/4 Processes
 sed -i 's/<'$TAGFONT4E'>//g' build/readme.rst
 
+
+# new in version 1.8.1
+echo use rst inlines instead of own generated
+echo 1/3 Processes
+sed -i 's/=<'$TAGINLINES'>/= ``/g' build/readme.rst
+echo 2/3 Processes
+sed -i 's/<'$TAGINLINES'>/``/g' build/readme.rst
+echo 3/3 Processes
+sed -i 's/<'$TAGINLINEE'>/``/g' build/readme.rst
+
+
 mv build/readme.rst source/readme.rst
 
 
@@ -326,9 +343,11 @@ sed -i 's/&lt;'$TAGPURPLES'&gt;/<span style="color:purple; background-color:khak
 echo 6/10 Processes
 sed -i 's/&lt;'$TAGPURPLEE'&gt;/<\/b><\/span style="color:purple; background-color:khaki;">/g' build/html/readme.html
 echo 7/10 Processes
-sed -i 's/&lt;'$TAGINLINES'&gt;/<span style="color:black; background-color:lightgray;"><b>/g' build/html/readme.html
+# no longer needed due to regular inline with V1.8.1
+# sed -i 's/&lt;'$TAGINLINES'&gt;/<span style="color:black; background-color:lightgray;"><b>/g' build/html/readme.html
 echo 8/10 Processes
-sed -i 's/&lt;'$TAGINLINEE'&gt;/<\/b><\/span style="color:black; background-color:lightgray;">/g' build/html/readme.html
+# no longer needed due to regular inline with V1.8.1
+# sed -i 's/&lt;'$TAGINLINEE'&gt;/<\/b><\/span style="color:black; background-color:lightgray;">/g' build/html/readme.html
 echo 9/10 Processes
 sed -i 's/&lt;'$TAGFONT10S'&gt;/<span>/g' build/html/readme.html
 echo 10/10 Processes
@@ -348,63 +367,6 @@ echo 5/6 Processes
 sed -i 's/&lt;'$TAGFONT4S'&gt;//g' build/html/readme.html
 echo 6/6 Processes
 sed -i 's/&lt;'$TAGFONT4E'&gt;//g' build/html/readme.html
-
-cp build/html/_sources/readme.rst.txt build/readme.rst.tmp
-echo special inline html handle
-echo 1/2 Processes
-sed -i 's/<'$TAGINLINES'>/``/g' build/readme.rst.tmp
-echo 2/2 Processes
-sed -i 's/<'$TAGINLINEE'>/``/g' build/readme.rst.tmp
-
-echo
-echo convert rst file into markdown advanced
-pandoc -f rst -t gfm build/readme.rst.tmp >build/html/readme-advanced.md
-
-echo
-echo convert CLI-labels to color codes in advanced markdown
-echo 1/8 Processes
-sed -i 's/<'$TAGGREENS'>/<span style="color:green"><b>/g' build/html/readme-advanced.md
-echo 2/8 Processes
-sed -i 's/<'$TAGGREENE'>/<\/b><\/span style="color:green">/g' build/html/readme-advanced.md
-echo 3/8 Processes
-sed -i 's/<'$TAGREDS'>/<span style="color:red;"><b>/g' build/html/readme-advanced.md
-echo 4/8 Processes
-sed -i 's/<'$TAGREDE'>/<\/b><\/span style="color:red;">/g' build/html/readme-advanced.md
-echo 5/8 Processes
-sed -i 's/<'$TAGPURPLES'>/<span style="color:purple; background-color:khaki;"><b>/g' build/html/readme-advanced.md
-echo 6/8 Processes
-sed -i 's/<'$TAGPURPLEE'>/<\/b><\/span style="color:purple; background-color:khaki;">/g' build/html/readme-advanced.md
-echo 7/8 Processes
-sed -i 's/<'$TAGFONT10S'>/<span>/g' build/html/readme-advanced.md
-echo 8/8 Processes
-sed -i 's/<'$TAGFONT10E'>/<\/span>/g' build/html/readme-advanced.md
-
-
-echo
-echo instead of code-statement use html-box
-sed -i 's/^``` none/<div class="mybox" style="border: 1px solid #e1e4e5 ; overflow-x: auto; margin: 0px 0 16px; box-sizing: border-box; padding: 5px; background: #F7F7F7;"><div class="mycode" style="font-weight: 400; box-sizing: border-box; font-family: SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,Courier,monospace; font-size: 12px; line-height: 1.2; white-space: pre;"><span>/g' build/html/readme-advanced.md
-sed -i 's/^```/<font color="black"><\/span><\/div><\/div>\n/g' build/html/readme-advanced.md
-sed -i 's/<div class="note">/<div class="highlight" style="color:white;background-color:SteelBlue">/g' build/html/readme-advanced.md
-sed -i 's/<div class="warning">/<div class="highlight" style="color:white;background-color:IndianRed">/g' build/html/readme-advanced.md
-
-echo
-echo just revoke the small font labels for now as the used readthedoc theme is small enough
-echo 1/6 Processes
-sed -i 's/<'$TAGFONT8S'>/<span>/g' build/html/readme-advanced.md
-echo 2/6 Processes
-sed -i 's/<'$TAGFONT8E'>/<\/span>/g' build/html/readme-advanced.md
-echo 3/6 Processes
-sed -i 's/<'$TAGFONT6S'>/<span>/g' build/html/readme-advanced.md
-echo 4/6 Processes
-sed -i 's/<'$TAGFONT6E'>/<\/span>/g' build/html/readme-advanced.md
-echo 5/6 Processes
-sed -i 's/<'$TAGFONT4S'>//g' build/html/readme-advanced.md
-echo 6/6 Processes
-sed -i 's/<'$TAGFONT4E'>//g' build/html/readme-advanced.md
-
-#echo
-#echo convert markdown to html for render testing
-#pandoc -f gfm -t html build/html/readme-advanced.md >build/html/readme-advanced.html
 
 echo
 echo also remove the labels in the stored *.rst files ...
@@ -444,6 +406,7 @@ echo 16/18 Processes
 sed -i 's/<'$TAGINLINEE'>//g' build/html/_sources/readme.rst.txt
 # now apply inline before conversion similar to advanced md
 echo 17/18 Processes
+sed -i 's/=<'$TAGINLINES'>/= ``/g' build/readme.rst.tmp
 sed -i 's/<'$TAGINLINES'>/``/g' build/readme.rst.tmp
 echo 18/18 Processes
 sed -i 's/<'$TAGINLINEE'>/``/g' build/readme.rst.tmp
@@ -509,7 +472,6 @@ echo '' >> build/distribute/markdown-version/copy-images-to-this-dir.sh
 chmod 777 build/distribute/markdown-version/copy-images-to-this-dir.sh
 echo 'copy ..\html-version\_images\* .' > build/distribute/markdown-version/copy-images-to-this-dir.bat
 echo '' >> build/distribute/markdown-version/copy-images-to-this-dir.bat
-mv build/distribute/html-version/readme-advanced.md build/distribute/markdown-version
 mv build/distribute/html-version/readme-plain.md build/distribute/markdown-version
 if [[ "$*" == *md5* ]]
 then
